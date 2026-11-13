@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grupo N°2 · Análisis de riesgo crediticio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f6f8;--surface:#fff;--ink:#14212b;--muted:#5a6b78;--line:#d3dde4;--accent:#0b5d73;--code-bg:#0f1c25;--code-ink:#d6e6ee}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d161d;--surface:#14212b;--ink:#e6eef3;--muted:#92a4b1;--line:#243643;--accent:#5cc0d8;--code-bg:#08111a;--code-ink:#d6e6ee}}
+:root[data-theme="dark"]{--bg:#0d161d;--surface:#14212b;--ink:#e6eef3;--muted:#92a4b1;--line:#243643;--accent:#5cc0d8;--code-bg:#08111a;--code-ink:#d6e6ee}
+*{box-sizing:border-box}
+html{scroll-padding-top:1rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "IBM Plex Sans",system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:3rem 1.25rem 4rem}
+h1{font-size:clamp(2rem,6vw,3.2rem);line-height:1.1;margin:0 0 .75rem;letter-spacing:-.02em}
+.lead{color:var(--muted);max-width:62ch;margin:0 0 1.5rem}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin:0 0 2.5rem}
+.facts div{background:var(--surface);padding:.9rem 1rem}
+.facts b{display:block;font-size:1.5rem;color:var(--accent)}
+.facts span{color:var(--muted);font-size:.85rem}
+h2{font-size:1.25rem;margin:2rem 0 .75rem}
+details{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);margin:0 0 .6rem}
+summary{cursor:pointer;padding:.8rem 1rem;display:grid;grid-template-columns:5.5rem 1fr auto;gap:.75rem;align-items:baseline;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.wk{color:var(--muted);font-size:.85rem}
+.ttl{font-weight:600}
+.cx{font:.8rem "IBM Plex Mono",monospace;color:var(--accent)}
+.body{padding:0 1rem 1rem}
+.body p{margin:.2rem 0 .8rem;color:var(--muted)}
+pre{margin:0;background:var(--code-bg);color:var(--code-ink);padding:1rem;overflow-x:auto;font:.82rem/1.5 "IBM Plex Mono",monospace}
+footer{margin-top:3rem;color:var(--muted);font-size:.9rem}
+a{color:var(--accent)}
+@media (max-width:560px){summary{grid-template-columns:1fr;gap:.1rem}}
+</style>
+</head>
+<body>
+<main>
+<h1>Análisis de riesgo crediticio</h1>
+<p class="lead">Proyecto del Grupo N°2. Con el dataset <code>credit_risk_dataset.csv</code> (32 581 solicitudes) aplicamos, semana a semana, algoritmos de búsqueda, ordenamiento, optimización, árboles, programación dinámica y grafos a un problema de riesgo crediticio.</p>
+
+<div class="facts">
+<div><b>32 581</b><span>solicitudes de crédito</span></div>
+<div><b>12</b><span>semanas de trabajo</span></div>
+<div><b>Python</b><span>pandas · NumPy · NetworkX</span></div>
+<div><b>Colab</b><span>cuaderno original</span></div>
+</div>
+
+<h2>Semanas</h2>
+
+<details open>
+<summary><span class="wk">Semana 1</span><span class="ttl">Exploración y variable objetivo</span><span class="cx">pandas</span></summary>
+<div class="body"><p>Resumen estructural del dataset (tipos, nulos, únicos), distribución de <code>loan_status</code> y tasa de mora por motivo de préstamo.</p>
+<pre>tabla_intent = pd.crosstab(df['loan_intent'], df['loan_status'],
+                           margins=True, margins_name='Total')
+tabla_intent['%_Mora'] = (tabla_intent[1] / tabla_intent['Total'] * 100).round(2)</pre></div>
+</details>
+
+<details>
+<summary><span class="wk">Semana 2</span><span class="ttl">Búsqueda secuencial</span><span class="cx">O(n)</span></summary>
+<div class="body"><p>Busca un cliente por ID o por ingreso anual recorriendo todos los registros y mide el tiempo de ejecución.</p>
+<pre>for i in range(len(df)):
+    if df.loc[i, 'id_cliente'] == id_ingresado:
+        encontrado = True
+        break</pre></div>
+</details>
+
+<details>
+<summary><span class="wk">Semana 4</span><span class="ttl">Dataset ordenado y búsqueda binaria</span><span class="cx">O(log n)</span></summary>
+<div class="body"><p>Ordena por ingreso, guarda <code>dataset_preparado_ordenado.csv</code> y compara la búsqueda binaria con la secuencial.</p>
+<pre>while low &lt;= high:
+    mid = (low + high) // 2
+    if valor_medio == valor_buscado: posicion = mid; break
+    elif valor_medio &lt; valor_buscado: low = mid + 1
+    else: high = mid - 1</pre></div>
+</details>
+
+<details>
+<summary><span class="wk">Semana 5</span><span class="ttl">Merge Sort y Quick Sort</span><span class="cx">O(n log n)</span></summary>
+<div class="body"><p>Merge Sort ordena los ingresos; Quick Sort ordena los montos de préstamo. Ambos se comparan por tiempo.</p>
+<pre>def merge_sort(lista):
+    if len(lista) &lt;= 1: return lista
+    medio = len(lista) // 2
+    return merge(merge_sort(lista[:medio]), merge_sort(lista[medio:]))</pre></div>
+</details>
+
+<details>
+<summary><span class="wk">Semana 6</span><span class="ttl">Sistema integrado con menú</span><span class="cx">menú</span></summary>
+<div class="body"><p>Menú interactivo que une los algoritmos anteriores: ordenar por ingreso, ordenar por monto, buscar un monto y filtrar solicitudes por grado de riesgo (A a G).</p>
+<pre>filtro = df_limpio[df_limpio['loan_grade'] == grado]</pre></div>
+</details>
+
+<details>
+<summary><span class="wk">Semana 7</span><span class="ttl">Simulated Annealing</span><span class="cx">optimización</span></summary>
+<div class="body"><p>Elige clientes de una muestra de 300 con presupuesto de 1 000 000, maximizando beneficio (ingreso normalizado) menos 0.5 × riesgo normalizado.</p>
+<pre>if diferencia &gt; 0 or random.random() &lt; math.exp(diferencia / temperatura):
+    solucion_actual = nueva_solucion
+temperatura *= enfriamiento   # 0.995</pre></div>
+</details>
+
+<details>
+<summary><span class="wk">Semana 8</span><span class="ttl">Algoritmo genético</span><span class="cx">optimización</span></summary>
+<div class="body"><p>Resuelve el mismo problema con población de 50, 100 generaciones, elitismo (10), cruce de un punto y mutación de 5 %.</p>
+<pre>hijo = padre1[:punto] + padre2[punto:]
+for j in range(num_genes):
+    if random.random() &lt; tasa_mutacion: hijo[j] = 1 - hijo[j]</pre></div>
+</details>
+
+<details>
+<summary><span class="wk">Semana 9</span><span class="ttl">Búsqueda por interpolación</span><span class="cx">O(log log n) promedio</span></summary>
+<div class="body"><p>Estima la posición del monto buscado según su valor entre los extremos del rango. Funciona mejor con datos ordenados y bien distribuidos.</p>
+<pre>pos = low + int(((valor - arr[low]) * (high - low)) / (arr[high] - arr[low]))</pre></div>
+</details>
+
+<details>
+<summary><span class="wk">Semana 10</span><span class="ttl">Árbol AVL</span><span class="cx">O(log n)</span></summary>
+<div class="body"><p>Árbol binario autobalanceado con rotaciones simples y dobles. Se insertan los primeros 15 clientes y se muestra el árbol.</p>
+<pre>b = self._balance(nodo)
+if b &gt; 1 and clave &lt; nodo.izq.clave:
+    return self._rotar_derecha(nodo)</pre></div>
+</details>
+
+<details>
+<summary><span class="wk">Semana 11</span><span class="ttl">Mochila 0/1</span><span class="cx">O(n·W)</span></summary>
+<div class="body"><p>Programación dinámica para elegir créditos de una cartera de 40 solicitudes, con límite del 35 % del monto total y beneficio igual al ingreso.</p>
+<pre>dp[i][w] = max(beneficios[i-1] + dp[i-1][w - montos[i-1]], dp[i-1][w])</pre></div>
+</details>
+
+<details>
+<summary><span class="wk">Semana 12</span><span class="ttl">KMP frente a búsqueda secuencial de texto</span><span class="cx">O(N+M) vs O(N·M)</span></summary>
+<div class="body"><p>Busca el patrón «MEDICAL» en el texto de <code>loan_intent</code> y compara tiempos. KMP evita reevaluar caracteres con la tabla LPS.</p>
+<pre>if j == M:
+    indices.append(i - j)
+    j = lps[j - 1]</pre></div>
+</details>
+
+<details>
+<summary><span class="wk">Semana 13</span><span class="ttl">Grafos: Dijkstra y Floyd-Warshall</span><span class="cx">O((V+E) log V) · O(V³)</span></summary>
+<div class="body"><p>Red de 6 agencias financieras, una por motivo de préstamo. Dijkstra calcula la ruta mínima desde A_Central; Floyd-Warshall calcula todas las rutas mínimas.</p>
+<pre>for k in nodos:
+    for i in nodos:
+        for j in nodos:
+            matriz.loc[i, j] = min(matriz.loc[i, j], matriz.loc[i, k] + matriz.loc[k, j])</pre></div>
+</details>
+
+<footer>
+<p>Código completo en el cuaderno <a href="Grupo_N_2.ipynb">Grupo_N_2.ipynb</a> (sube el archivo a este mismo repositorio). Dataset: <code>credit_risk_dataset.csv</code>.</p>
+</footer>
+</main>
+</body>
+</html>
